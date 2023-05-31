@@ -54,7 +54,7 @@ jobs:
           # Octopus expects artifacts to have a specific file format
           file="${{ steps.get_artifact.outputs.artifact }}"
           extension="${file##*.}"
-          octofile="randomquotes.${{ steps.determine_version.outputs.semVer }}.${extension}"
+          octofile="randomquotes.1.0.0.${extension}"
           cp ${file} ${octofile}
           echo "::set-output name=artifact::${octofile}"
         
