@@ -40,8 +40,16 @@ jobs:
           echo "::set-output name=artifact::$(find target -type f \( -iname \*.jar -o -iname \*.war \) -printf "%p\n" | sort -n | head -1)"
         shell: bash
         
+      - id: get_artifact_name
+        name: Get Artifact Name
+        run: |-
+          # Get the filename without a path
+          path="${{ steps.get_artifact.outputs.artifact }}"
+          echo "::set-output name=artifact::${path##*/}"
+        shell: bash
+        
       - name: Package the function
-        run: echo "${{ steps.get_artifact.outputs.artifact }}"
+        run: echo "${{ steps.get_artifact_name.outputs.artifact }}"
 
     
     
