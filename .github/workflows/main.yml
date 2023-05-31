@@ -43,13 +43,23 @@ jobs:
       - id: get_artifact_name
         name: Get Artifact Name
         run: |-
-          # Get the filename without a path
+          # Get the fi`lename without a path
           path="${{ steps.get_artifact.outputs.artifact }}"
           echo "::set-output name=artifact::${path##*/}"
         shell: bash
         
+      - id: get_octopus_artifact
+        name: Create Octopus Artifact
+        run: |-
+          # Octopus expects artifacts to have a specific file format
+          file="${{ steps.get_artifact.outputs.artifact }}"
+          extension="${file##*.}"
+          octofile="randomquotes.${{ steps.determine_version.outputs.semVer }}.${extension}"
+          cp ${file} ${octofile}
+          echo "::set-output name=artifact::${octofile}"
+        
       - name: Package the function
-        run: echo "${{ steps.get_artifact_name.outputs.artifact }}"
+        run: echo "${{ steps.get_octopus_artifact.outputs.artifact }}"
 
     
     
