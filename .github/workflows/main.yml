@@ -49,18 +49,26 @@ jobs:
         shell: bash
         
       - id: get_octopus_artifact
-        name: Create Octopus Artifact
+        name: Create Octopus Artifact and zip it
         run: |-
           # Octopus expects artifacts to have a specific file format
           file="${{ steps.get_artifact.outputs.artifact }}"
           extension="${file##*.}"
           octofile="mavenwebapp.$PACKAGE_VERSION.${extension}"
           cp ${file} ${octofile}
-          echo "::set-output name=artifact::${octofile}"
-        
-      - name: Package the function
-        run: cat "${{ steps.get_octopus_artifact.outputs.artifact }}"
-
+          # Zip the artifact file
+          zip_file="${octofile}.zip"
+          zip -r ${zip_file} ${octofile}
+          echo "::set-output name=artifact::${zip_file}"
+          
+      - name: Push packages to Octopus Deploy 🐙
+        uses: OctopusDeploy/push-package-action@v2
+        env:
+          OCTOPUS_API_KEY: ${{ secrets.OCTOPUS_API_TOKEN }}
+          OCTOPUS_HOST: ${{ secrets.OCTOPUS_SERVER_URL }}
+        with:
+          overwrite_mode: OverwriteExisting
+          packages: ${{ steps.get_octopus_artifact.outputs.artifact }}
     
     
     
