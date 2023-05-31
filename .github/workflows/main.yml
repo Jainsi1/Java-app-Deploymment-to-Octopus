@@ -10,15 +10,18 @@ jobs:
     steps:
       - name: Check out code
         uses: actions/checkout@v2
-     
-      - name: Set Version
-        run: echo "PACKAGE_VERSION=$(date +'%Y.%m.%d').$GITHUB_RUN_NUMBER" >> $GITHUB_ENV
-      
-      - name: Create artifacts folder
-        run: |
-          mkdir "$GITHUB_WORKSPACE/artifacts"
-          mkdir "$GITHUB_WORKSPACE/artifacts/LambdaPackage"   
-      
+    
+      - name: Install GitVersion
+        uses: gittools/actions/gitversion/setup@v0.9.14
+        with:
+          versionSpec: 5.x
+          
+      - id: determine_version
+        name: Determine Version
+        uses: gittools/actions/gitversion/execute@v0.9.14
+        with:
+          additionalArguments: /overrideconfig mode=Mainline
+        
       - name: Install Octopus Deploy CLI
         uses: OctopusDeploy/install-octopus-cli-action@v1
         with:
@@ -32,6 +35,9 @@ jobs:
           
       - name: build app
         run: mvn clean install
+        
+      - name: set the version of app
+        run: mvn versions:set -DnewVersion=${{ steps.determine_version.outputs.semVer }}
           
       - id: get_artifact
         name: Get Artifact Path
@@ -54,7 +60,7 @@ jobs:
           # Octopus expects artifacts to have a specific file format
           file="${{ steps.get_artifact.outputs.artifact }}"
           extension="${file##*.}"
-          octofile="mavenwebapp.$PACKAGE_VERSION.${extension}"
+          octofile="mavenwebapp.${{ steps.determine_version.outputs.semVer }}.${extension}"
           cp ${file} ${octofile}
           # Zip the artifact file
           zip_file="${octofile}"
