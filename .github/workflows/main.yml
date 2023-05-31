@@ -56,7 +56,7 @@ jobs:
           cp ${file} ${octofile}
           # Zip the artifact file
           zip_file="${octofile}"
-          zip -r ${zip_file}
+          zip ${zip_file}.zip ${zip_file}
           echo "::set-output name=artifact::${zip_file}"
         shell: bash
           
