@@ -59,7 +59,7 @@ jobs:
           echo "::set-output name=artifact::${octofile}"
         
       - name: Package the function
-        run: echo "${{ steps.get_octopus_artifact.outputs.artifact }}"
+        run: cat "${{ steps.get_octopus_artifact.outputs.artifact }}"
 
     
     
