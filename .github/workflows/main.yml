@@ -1,0 +1,48 @@
+name: zip package and deploy to Octopus
+
+on:
+ workflow_dispatch:
+ 
+jobs:
+  lambda:
+    name: octopus deploy
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+     
+      - name: Set Version
+        run: echo "PACKAGE_VERSION=$(date +'%Y.%m.%d').$GITHUB_RUN_NUMBER" >> $GITHUB_ENV
+      
+      - name: Create artifacts folder
+        run: |
+          mkdir "$GITHUB_WORKSPACE/artifacts"
+          mkdir "$GITHUB_WORKSPACE/artifacts/LambdaPackage"   
+      
+      - name: Install Octopus Deploy CLI
+        uses: OctopusDeploy/install-octopus-cli-action@v1
+        with:
+          version: latest
+          
+      - name: Set up JDK 1.17
+        uses: actions/setup-java@v2
+        with:
+          java-version: '17'
+          distribution: adopt
+          
+      - name: build app
+        run: mvn clean install
+          
+      - id: get_artifact
+        name: Get Artifact Path
+        run: |-
+          # Find the largest WAR or JAR, and assume that was what we intended to build.
+          echo "::set-output name=artifact::$(find target -type f \( -iname \*.jar -o -iname \*.war \) -printf "%p\n" | sort -n | head -1)"
+        shell: bash
+        
+      - name: Package the function
+        run: echo "${{ steps.get_artifact.outputs.artifact }}"
+
+    
+    
+    
