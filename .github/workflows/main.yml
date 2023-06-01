@@ -52,7 +52,7 @@ jobs:
           # Octopus expects artifacts to have a specific file format
           file="${{ steps.get_artifact.outputs.artifact }}"
           extension="${file##*.}"
-          octofile="test.$PACKAGE_VERSION.${extension}"
+          octofile="mavenwebapp.$PACKAGE_VERSION.${extension}"
           cp ${file} ${octofile}
           # Zip the artifact file
           # zip_file="${octofile}"
