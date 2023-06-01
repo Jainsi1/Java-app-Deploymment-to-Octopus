@@ -55,9 +55,9 @@ jobs:
           octofile="test.$PACKAGE_VERSION.${extension}"
           cp ${file} ${octofile}
           # Zip the artifact file
-          zip_file="${octofile}"
-          zip ${zip_file}.zip ${zip_file}
-          echo "::set-output name=artifact::${zip_file}"
+          # zip_file="${octofile}"
+          # zip ${zip_file}.zip ${zip_file}
+          echo "::set-output name=artifact::${octofile}"
         shell: bash
           
       - name: Push packages to Octopus Deploy 🐙
